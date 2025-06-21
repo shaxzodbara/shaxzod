@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+</head>
+<body style="font-family: sans-serif; max-width: 600px; margin: auto;">
+    <h2>📤 Video yuklash</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="video" accept="video/mp4" required>
+        <button type="submit">Yuklash</button>
+    </form>
+
+    <h2>📊 Foydalanuvchi IP loglari</h2>
+    <ul>
+        {% for ip in ip_logs %}
+            <li>{{ ip.strip() }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
