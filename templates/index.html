@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Video ko‘rish</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container">
+    <a class="navbar-brand" href="{{ url_for('index') }}">VideoSayt</a>
+    <div>
+      <a class="btn btn-outline-light" href="{{ url_for('admin_login') }}">Admin panel</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container py-4">
+    <h1 class="mb-4">Videolar ro‘yxati</h1>
+    <div class="list-group">
+        {% for video in videos %}
+            <a href="{{ url_for('watch_video', filename=video) }}" class="list-group-item list-group-item-action">
+                {{ video }}
+            </a>
+        {% else %}
+            <div class="alert alert-info">Hozircha video mavjud emas.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
