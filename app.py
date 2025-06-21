@@ -14,7 +14,7 @@ if not os.path.exists(UPLOAD_FOLDER):
 IP_LOG_FILE = 'ip_log.json'
 
 ADMIN_USERNAME = 'admin'
-ADMIN_PASSWORD = '12345'  # xohlasangiz o'zgartiring
+ADMIN_PASSWORD = '12345'  # O'zgartirish mumkin
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # Maks 500MB fayl
@@ -35,6 +35,14 @@ def save_ip_log(ip, video):
     with open(IP_LOG_FILE, 'w', encoding='utf-8') as f:
         json.dump(logs, f, indent=4, ensure_ascii=False)
 
+def get_client_ip():
+    # Proksi ortidan haqiqiy IPni olish uchun:
+    if request.headers.getlist("X-Forwarded-For"):
+        ip = request.headers.getlist("X-Forwarded-For")[0].split(',')[0].strip()
+    else:
+        ip = request.remote_addr
+    return ip
+
 @app.route('/')
 def index():
     videos = os.listdir(app.config['UPLOAD_FOLDER'])
@@ -42,8 +50,9 @@ def index():
 
 @app.route('/watch/<filename>')
 def watch_video(filename):
-    ip = request.remote_addr
-    if not os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
+    ip = get_client_ip()
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if not os.path.exists(filepath):
         return "Video topilmadi", 404
     save_ip_log(ip, filename)
     return render_template('watch.html', filename=filename)
@@ -64,7 +73,6 @@ def admin_login():
 def admin_panel():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
-
     videos = os.listdir(app.config['UPLOAD_FOLDER'])
     logs = load_ip_logs()
     return render_template('admin.html', videos=videos, logs=logs)
@@ -95,4 +103,5 @@ def admin_logout():
     return redirect(url_for('admin_login'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # '0.0.0.0' barchaga ochiq qilish uchun
+    app.run(host='0.0.0.0', debug=True)
