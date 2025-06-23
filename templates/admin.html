@@ -3,67 +3,78 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Admin panel</title>
+    <title>Admin Panel - Video Yuklash</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
-<body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
   <div class="container">
-    <a class="navbar-brand" href="{{ url_for('index') }}">Admin panel</a>
+    <a class="navbar-brand" href="{{ url_for('admin') }}">Admin Panel</a>
     <div>
-      <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-light">Chiqish</a>
+      <a href="{{ url_for('logs') }}" class="btn btn-outline-light me-2">Loglarni ko‘rish</a>
+      <a href="{{ url_for('logout') }}" class="btn btn-outline-light">Chiqish</a>
     </div>
   </div>
 </nav>
 
-<div class="container py-4">
-    <h2>Video yuklash</h2>
+<div class="container">
+    <h2 class="mb-4">Yangi video yuklash</h2>
+
+    <!-- Flash xabarlar -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        {% for category, msg in messages %}
-          <div class="alert alert-{{ 'success' if category == 'success' else 'warning' }}">{{ msg }}</div>
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
         {% endfor %}
       {% endif %}
     {% endwith %}
-    <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload_video') }}" class="mb-4">
-        <div class="input-group">
-            <input type="file" class="form-control" name="video" accept="video/*" required />
-            <button class="btn btn-primary" type="submit">Yuklash</button>
+
+    <form method="POST" enctype="multipart/form-data" class="mb-5">
+        <div class="mb-3">
+            <label for="title" class="form-label">Video sarlavhasi</label>
+            <input type="text" class="form-control" id="title" name="title" placeholder="Video nomini kiriting" required />
         </div>
+        <div class="mb-3">
+            <label for="desc" class="form-label">Video ta'rifi</label>
+            <textarea class="form-control" id="desc" name="desc" rows="3" placeholder="Video haqida qisqacha ma'lumot" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="video" class="form-label">Video fayl (.mp4)</label>
+            <input type="file" class="form-control" id="video" name="video" accept=".mp4" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Yuklash</button>
     </form>
 
-    <h2>Yuklangan videolar</h2>
-    <ul class="list-group mb-4">
-        {% for video in videos %}
-            <li class="list-group-item">{{ video }}</li>
-        {% else %}
-            <li class="list-group-item">Video mavjud emas</li>
-        {% endfor %}
-    </ul>
-
-    <h2>Foydalanuvchi IP loglari</h2>
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle">
-            <thead class="table-primary">
-                <tr>
-                    <th>IP manzil</th>
-                    <th>Video nomi</th>
-                    <th>Vaqti</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for log in logs %}
-                <tr>
-                    <td>{{ log.ip }}</td>
-                    <td>{{ log.video }}</td>
-                    <td>{{ log.time }}</td>
-                </tr>
-                {% else %}
-                <tr><td colspan="3" class="text-center">Log mavjud emas</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <h3>Yuklangan videolar ro‘yxati</h3>
+    {% if videos %}
+    <table class="table table-bordered table-striped mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Sarlavha</th>
+                <th>Ta'rif</th>
+                <th>Fayl nomi</th>
+                <th>Video ko‘rish</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for video in videos %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ video.title }}</td>
+                <td>{{ video.desc }}</td>
+                <td>{{ video.filename }}</td>
+                <td><a href="{{ url_for('video', filename=video.filename) }}" class="btn btn-sm btn-success" target="_blank">Ko‘rish</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>Hozircha video yuklanmagan.</p>
+    {% endif %}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
