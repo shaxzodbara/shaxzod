@@ -1,28 +1,119 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <title>Bosh sahifa - Videolar</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-dark text-white">
+    <meta charset="UTF-8" />
+    <title>Diniy Videolar - Bosh sahifa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<div class="container py-4">
-    <h1 class="mb-4 text-center">🎥 Videolar</h1>
-    <div class="row">
+    <!-- Google Fonts (Serif va Arabic qo'llab-quvvatlovchi) -->
+    <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New&family=Tajawal&display=swap" rel="stylesheet" />
+
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background: #faf8f5 url('https://www.transparenttextures.com/patterns/asfalt-light.png');
+            font-family: 'Scheherazade New', serif;
+            color: #4a403a;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        h1 {
+            font-family: 'Tajawal', sans-serif;
+            color: #b08968;
+            text-align: center;
+            margin: 50px 0 30px;
+            font-weight: 700;
+            text-shadow: 1px 1px 4px #f0e6d2;
+        }
+
+        .card {
+            background: #fffaf0;
+            border-radius: 18px;
+            border: 1px solid #d7cbbf;
+            box-shadow: 0 8px 15px rgb(180 160 140 / 0.25);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 14px 30px rgb(180 160 140 / 0.35);
+        }
+
+        .card-img-top {
+            height: 180px;
+            object-fit: cover;
+            border-top-left-radius: 18px;
+            border-top-right-radius: 18px;
+            border-bottom: 1px solid #d7cbbf;
+        }
+
+        .card-title {
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.3rem;
+            color: #b08968;
+            margin-top: 15px;
+            font-weight: 700;
+        }
+
+        .card-text {
+            font-family: 'Scheherazade New', serif;
+            font-size: 1rem;
+            color: #5a4f44;
+            margin-top: 8px;
+            flex-grow: 1;
+        }
+
+        .btn-watch {
+            background-color: #b08968;
+            color: #fff;
+            border-radius: 12px;
+            font-weight: 600;
+            border: none;
+            padding: 10px 20px;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 3px 6px rgba(176,137,104,0.5);
+        }
+
+        .btn-watch:hover {
+            background-color: #8b6b4b;
+            box-shadow: 0 6px 12px rgba(176,137,104,0.7);
+        }
+
+        .no-videos {
+            text-align: center;
+            font-family: 'Scheherazade New', serif;
+            font-size: 1.1rem;
+            margin-top: 60px;
+            color: #8b7d6b;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📿 Diniy Videolar Majmuasi</h1>
+    <div class="row justify-content-center">
         {% for video in videos %}
-        <div class="col-md-4 mb-4">
-            <div class="card bg-secondary">
-                <div class="card-body">
+        <div class="col-sm-12 col-md-6 col-lg-4 mb-4">
+            <div class="card d-flex flex-column h-100">
+                <img src="{{ url_for('static', filename='thumbnails/' ~ video.thumbnail) }}" alt="{{ video.title }}" class="card-img-top" />
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title">{{ video.title }}</h5>
-                    <p class="card-text">{{ video.desc }}</p>
-                    <a href="{{ url_for('video', filename=video.filename) }}" class="btn btn-light w-100">Ko‘rish</a>
+                    <p class="card-text flex-grow-1">{{ video.desc }}</p>
+                    <a href="{{ url_for('video', filename=video.filename) }}" class="btn btn-watch mt-3 align-self-start">▶️ Ko‘rish</a>
                 </div>
             </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <p class="no-videos">Hozircha hech qanday video mavjud emas.</p>
         </div>
         {% endfor %}
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
