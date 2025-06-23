@@ -5,9 +5,8 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.secret_key = 'super_secret_key'  # Xavfsiz kalit qo‘ying
+app.secret_key = 'super_secret_key'
 
-# 📁 Papkalar va fayllar yo‘llari
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 VIDEO_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
 THUMBNAIL_FOLDER = os.path.join(BASE_DIR, 'static', 'thumbnails')
@@ -17,12 +16,10 @@ VIDEOS_JSON = os.path.join(DATA_FOLDER, 'videos.json')
 VIEWS_JSON = os.path.join(DATA_FOLDER, 'views.json')
 USERS_JSON = os.path.join(BASE_DIR, 'users.json')
 
-# Papkalarni yaratish (agar mavjud bo‘lmasa)
 os.makedirs(VIDEO_FOLDER, exist_ok=True)
 os.makedirs(THUMBNAIL_FOLDER, exist_ok=True)
 os.makedirs(DATA_FOLDER, exist_ok=True)
 
-# JSON fayllarni o‘qish va yozish uchun umumiy funksiyalar
 def safe_load_json(path, default):
     if not os.path.exists(path):
         with open(path, 'w', encoding='utf-8') as f:
@@ -55,13 +52,11 @@ def save_views(views):
 def load_users():
     return safe_load_json(USERS_JSON, {"admin": "admin123"})
 
-# Global IP olish
 def get_client_ip():
     if request.headers.getlist("X-Forwarded-For"):
         return request.headers.getlist("X-Forwarded-For")[0].split(',')[0].strip()
     return request.remote_addr
 
-# Video ko‘rilganini logga yozish
 def log_view(video_title):
     log_entry = {
         "video": video_title,
@@ -74,13 +69,11 @@ def log_view(video_title):
     logs.append(log_entry)
     save_views(logs)
 
-# Bosh sahifa (videolar ro‘yxati)
 @app.route('/')
 def index():
     videos = load_videos()
     return render_template('index.html', videos=videos)
 
-# Video ko‘rish sahifasi
 @app.route('/video/<filename>')
 def video(filename):
     videos = load_videos()
@@ -90,7 +83,6 @@ def video(filename):
     log_view(video['title'])
     return render_template('video.html', video=video)
 
-# Login sahifasi
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -105,7 +97,6 @@ def login():
             flash("Login yoki parol noto‘g‘ri!", "danger")
     return render_template('login.html')
 
-# Admin panel (video va thumbnail yuklash)
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     if 'admin' not in session:
@@ -155,7 +146,30 @@ def admin():
     videos = load_videos()
     return render_template('admin.html', videos=videos)
 
-# Loglarni ko‘rish sahifasi
+@app.route('/admin/delete/<filename>', methods=['POST'])
+def delete_video(filename):
+    if 'admin' not in session:
+        flash("Tizimga kiring.", "warning")
+        return redirect(url_for('login'))
+
+    videos = load_videos()
+    video = next((v for v in videos if v['filename'] == filename), None)
+
+    if video:
+        try:
+            os.remove(os.path.join(VIDEO_FOLDER, video['filename']))
+            os.remove(os.path.join(THUMBNAIL_FOLDER, video['thumbnail']))
+        except Exception as e:
+            flash(f"Faylni o‘chirishda xatolik: {e}", "danger")
+
+        videos = [v for v in videos if v['filename'] != filename]
+        save_videos(videos)
+        flash("Video o‘chirildi.", "success")
+    else:
+        flash("Video topilmadi.", "danger")
+
+    return redirect(url_for('admin'))
+
 @app.route('/admin/logs')
 def logs():
     if 'admin' not in session:
@@ -164,19 +178,16 @@ def logs():
     logs = load_views()
     return render_template('logs.html', logs=logs[::-1])
 
-# Logout
 @app.route('/logout')
 def logout():
     session.pop('admin', None)
     flash("Tizimdan chiqdingiz.", "info")
     return redirect(url_for('login'))
 
-# Video fayllarni serverdan jo‘natish
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(VIDEO_FOLDER, filename)
 
-# Thumbnail fayllarni serverdan jo‘natish
 @app.route('/thumbnails/<filename>')
 def thumbnail_file(filename):
     return send_from_directory(THUMBNAIL_FOLDER, filename)
